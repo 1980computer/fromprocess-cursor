@@ -1,0 +1,67 @@
+---
+description: Agent rules for From Process MCP — account checks, project lifecycle, headless integration, and error handling
+alwaysApply: false
+---
+
+# From Process agent rules
+
+Use these rules when the user asks to create, publish, or manage forms, waitlists, landing pages, or link-in-bio pages on [From Process](https://fromprocess.com).
+
+## Before you act
+
+1. Call `get_account_status` before `publish_project` or when the user reports publish errors.
+2. Check `readyForAgents` and `blockers` — explain blockers in plain language (missing username, plan limit, unused API key).
+3. If MCP tools fail with auth errors, walk the user through Settings → API keys at https://fromprocess.com/dashboard/settings.
+
+## Product types
+
+| User intent | MCP tool |
+|-------------|----------|
+| Contact / intake form | `create_standard_form` |
+| Waitlist / newsletter | `create_email_signup` |
+| Marketing landing page | `create_landing_page` |
+| Link in bio | `create_link_in_bio` |
+| Enterprise template | `list_templates` → `create_from_template` |
+
+Default to **draft first** (`published: false` or omit) unless the user explicitly asks to publish and account status allows it.
+
+## Project lifecycle
+
+- After create or list, store `formId` and `deliverable` (`publicUrl`, `embedUrl`, `username`, `slug`).
+- Use `list_projects` / `get_project` to resolve names to UUIDs before update, publish, or submission tools.
+- Sections JSON uses stable field `id` values (e.g. `headline`, `banner`, `profile`) — reference these when editing copy or uploading media.
+- `upload_page_media` requires a **local `filePath`** on the machine running MCP plus a field `id` (usually `banner` or `profile`).
+
+## Submissions and integrations
+
+- `list_submissions`, `get_submission`, `export_submissions` — export requires Pro.
+- Webhooks: `list_webhooks`, `create_webhook`, `update_webhook`, `delete_webhook` — Pro plan, HTTPS URLs only, save signing secret on create.
+- `get_project_metrics` for analytics (7/30/90 days) after publish.
+
+## Headless (custom site UI)
+
+When building a form UI on the user's own site:
+
+1. `get_published_schema` with `username` + `slug`, or `GET /api/public/forms/:username/:slug/schema`.
+2. Render fields marked native in `headless.support`.
+3. File fields: `POST …/upload` first, then include returned key in submit JSON.
+4. Submit: `POST /api/public/forms/:username/:slug/submit` keyed by field id (no auth).
+
+Docs: https://fromprocess.com/docs/headless · OpenAPI: https://fromprocess.com/api/openapi
+
+## HTTP fallback
+
+Same API key (`Authorization: Bearer fp_…`) works without MCP. Tool names map 1:1 to HTTP routes (e.g. `get_account_status` → `GET /api/user/agent-readiness`).
+
+## Response handling
+
+- Create and publish return `{ formId, deliverable }` — always show the user `publicUrl` and `embedUrl` when publishing succeeds.
+- On `NEED_PRO_PLAN` or 403, explain which feature requires Pro (export, webhooks).
+- On 422 validation errors, report field-level messages from the API response.
+
+## Docs
+
+- Overview: https://fromprocess.com/docs/agentic
+- Getting started: https://fromprocess.com/docs/agentic/getting-started
+- What to ask: https://fromprocess.com/docs/agentic/what-to-ask
+- MCP tools: https://fromprocess.com/docs/agentic/mcp

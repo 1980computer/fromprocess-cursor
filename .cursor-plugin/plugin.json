@@ -1,0 +1,21 @@
+{
+  "name": "fromprocess",
+  "displayName": "From Process",
+  "version": "0.1.0",
+  "description": "Create, publish, and manage forms, waitlists, landing pages, and link-in-bio pages on fromprocess.com via MCP.",
+  "author": {
+    "name": "From Process",
+    "email": "info@fromprocess.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "fromprocess",
+    "forms",
+    "waitlist",
+    "landing-page",
+    "link-in-bio",
+    "mcp",
+    "headless"
+  ],
+  "logo": "assets/logo.svg"
+}

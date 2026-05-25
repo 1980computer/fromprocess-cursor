@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "fromprocess": {
+      "command": "npx",
+      "args": ["-y", "@fromprocess/mcp"],
+      "env": {
+        "FROMPROCESS_API_KEY": "${FROMPROCESS_API_KEY}",
+        "FROMPROCESS_API_URL": "https://fromprocess.com"
+      }
+    }
+  }
+}
